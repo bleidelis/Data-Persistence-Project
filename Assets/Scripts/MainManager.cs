@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,20 +13,33 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
-    
+    public Text BestScoreText;
+
     private bool m_Started = false;
     private int m_Points;
-    
+
     private bool m_GameOver = false;
 
-    
-    // Start is called before the first frame update
+    GameManager gameManager;
+    string userName;
+    int bestScore;
+    string bestScoreUserName;
+
+
+
     void Start()
     {
+        DataManager.Instance.LoadData();
+        bestScore = DataManager.Instance.BestScore;
+        bestScoreUserName = DataManager.Instance.BestScoreUserName;
+
+        BestScoreText.text = "Best Score :" + bestScoreUserName + " : " + bestScore;
+        userName = DataManager.Instance.name;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        int[] pointCountArray = new[] { 1, 1, 2, 2, 5, 5 };
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -37,6 +51,7 @@ public class MainManager : MonoBehaviour
             }
         }
     }
+
 
     private void Update()
     {
@@ -62,6 +77,9 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    // mpoints skors
+
+
     void AddPoint(int point)
     {
         m_Points += point;
@@ -71,6 +89,14 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+        if (m_Points > bestScore)
+        {
+            bestScore = m_Points;
+            bestScoreUserName = userName;
+            DataManager.Instance.Save(bestScore, bestScoreUserName);
+        }
+        BestScoreText.text = "Best Score :" + bestScoreUserName + " : " + bestScore;
         GameOverText.SetActive(true);
     }
+
 }
